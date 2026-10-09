@@ -20,9 +20,13 @@ const errors = [];
 try {
   const page = await app.firstWindow();
   page.on("pageerror", (error) => errors.push(error.message));
-  await app.evaluate(({ BrowserWindow }) =>
-    BrowserWindow.getAllWindows()[0].hide(),
-  );
+  // Packaged renderers retain normal background throttling. Hiding their window
+  // can suspend animation frames on CI, including Playwright's stability checks.
+  await app.evaluate(({ BrowserWindow }) => {
+    const window = BrowserWindow.getAllWindows()[0];
+    window.show();
+    window.focus();
+  });
   await page.getByRole("heading", { name: "让灵感，自由成像。" }).waitFor();
   assert.deepEqual(await page.evaluate(() => window.desktop.getInfo()), {
     version,
