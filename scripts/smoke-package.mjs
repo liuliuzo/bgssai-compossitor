@@ -35,7 +35,7 @@ try {
   await page.getByRole("button", { name: /打开示例/ }).click();
   await page.locator(".layer-row").first().waitFor();
   assert.equal(await page.locator(".layer-row").count(), 5);
-  await page.screenshot({ path: "docs/windows-preview.png" });
+  await page.screenshot({ path: "docs/review/windows-preview.png" });
   const projectPath = join(temp, "packaged.bgcomp");
   await app.evaluate(({ dialog }, filePath) => {
     dialog.showSaveDialog = async () => ({ canceled: false, filePath });

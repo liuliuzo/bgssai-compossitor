@@ -1,4 +1,4 @@
-# Windows 首版架构
+# Compositor 架构
 
 ## 桌面边界
 
@@ -37,6 +37,12 @@ UTF-8 JSON，顶层为：
 
 ## 构建和后续扩展
 
-Windows 构建生成 NSIS 安装版和 portable 免安装版。当前没有签名凭据，构建不申请或绕过代码签名。GitHub Actions 只上传构建 artifact，不发布 Release。开发和生产均来自 `develop`，通过两份 properties 区分配置。
+Windows 构建生成 NSIS 和 portable，macOS 生成 DMG / ZIP，Linux 生成 AppImage / DEB。手机共享同一渲染器和 bgcomp v1，通过 Capacitor 的离线资源、Filesystem / Share 输出。移动端使用响应式画布与可滚动属性面板。没有 Canvas filter 的环境通过软件颜色调整及三次盒式近似高斯模糊保持调整可编辑；模糊像素不承诺与 Chromium 完全相等。
 
-后续可在图层数据模型中加入蒙版、组、独立调整图层，并为 PSD 转换建立报告式导入；这些需要新格式版本或有兼容策略的可选字段。大文档可改为瓦片存储和增量历史；自动恢复、色彩管理和更新签名应作为独立功能验证。
+自动恢复在桌面使用带 SHA256 的两代原子快照，手机使用 IndexedDB 事务。自动保存只读取完整历史提交，不为选区、缩放或未结束笔划重复序列化。预算包含当前和待采用项目、Canvas 工作面、历史和字符串副本，在图像解码和主要 Canvas 分配前检查。
+
+可选服务由 Chat 授权码 + S256 PKCE 验证 sub 后建立独立 Compositor 会话。会话和 Bot 令牌只在服务内存中保留，客户端会话也不持久化；同步项目用 issuer/sub 哈希隔离，If-Match 阻止并发覆盖。同步、Bot、AI 默认关闭；撤销同步清除云端项目，AI 仅使用服务端配置的 TokenHub。服务重启需要重新授权，暂不支持多节点会话共享。
+
+PR / develop 构建只上传 artifact。手工签名发布只接受 develop 上的 tag，使用受控环境凭据创建 draft Release。Ed25519 清单绑定源码 SHA、包版本、平台、大小和 SHA256；更新拒绝降级、过期清单、错误平台和缺失回滚包。Windows NSIS 安装由独立 helper 执行并等待渲染器启动回执，失败安装上一版，再次检查启动。其它平台保留校验后的上一版用于手工回滚；移动端由系统分发更新。完整流程和验收边界见 [COMP-02/04/05](../feature/COMP-02-04-05.md)。
+
+开发和生产统一从 `develop` 部署，仅 properties 区分地址和功能配置。Chat client secret、Hub key、代码签名及发布私钥通过环境变量注入，不进入客户端、项目文件或仓库。

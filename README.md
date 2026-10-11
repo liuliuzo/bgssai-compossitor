@@ -15,7 +15,7 @@
 
 打开应用后可以创建画布、打开图片，或点击“打开示例”探索由多个可编辑图层组成的示例作品。
 
-![Windows 桌面版实际运行截图](docs/windows-preview.png)
+![Windows 桌面版实际运行截图](docs/review/windows-preview.png)
 
 ## 首版功能
 
